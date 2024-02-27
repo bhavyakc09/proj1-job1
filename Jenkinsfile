@@ -11,9 +11,6 @@ pipeline {
                     // Specify the IP address or hostname of the test server
                     def testServer = '192.168.145.159'
 
-                    // Specify the SSH username
-                    def sshUsername = 'job1-edu'
-
                     // Specify the Puppet Agent installation script
                     def puppetInstallScript = '''
                         #!/bin/bash
@@ -27,11 +24,11 @@ pipeline {
                     '''
 
                     // Copy the Puppet installation script to the test server
-                    sshCommand remote: [credentialsId: sshCredentials, user: sshUsername, host: testServer],
+                    sshCommand remote: [credentialsId: sshCredentials, host: testServer],
                                 command: puppetInstallScript
 
                     // Configure Puppet Agent
-                    sshCommand remote: [credentialsId: sshCredentials, user: sshUsername, host: testServer],
+                    sshCommand remote: [credentialsId: sshCredentials, host: testServer],
                                 command: 'sudo /opt/puppetlabs/bin/puppet agent --test'
                 }
             }
