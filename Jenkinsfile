@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     // Specify the SSH credentials to connect to the test server
-                    def sshCredentials = credentials('14138f8e-5d28-42d2-894d-23affc985418')
+                    def sshCredentials = '14138f8e-5d28-42d2-894d-23affc985418'
 
                     // Specify the IP address or hostname of the test server
                     def testServer = '192.168.145.159'
@@ -23,13 +23,12 @@ pipeline {
                         sudo apt-get install -y puppet-agent
                     '''
 
-                    // Copy the Puppet installation script to the test server
-                    sshCommand remote: [credentialsId: sshCredentials, host: testServer],
-                                command: puppetInstallScript
-
-                    // Configure Puppet Agent
-                    sshCommand remote: [credentialsId: sshCredentials, host: testServer],
-                                command: 'sudo /opt/puppetlabs/bin/puppet agent --test'
+                    // Use sshagent step to handle SSH authentication
+                    sshagent(credentials: [sshCredentials]) {
+                        // Execute commands on the remote server
+                        sh "ssh ${testServer} '${puppetInstallScript}'"
+                        sh "ssh ${testServer} 'sudo /opt/puppetlabs/bin/puppet agent --test'"
+                    }
                 }
             }
         }
